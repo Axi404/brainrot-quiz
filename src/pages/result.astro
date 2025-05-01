@@ -1,0 +1,42 @@
+---
+---
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <title>答题结果</title>
+    <meta name="viewport" content="width=device-width" />
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+  </head>
+  <body class="bg-gradient-to-br from-green-100 via-emerald-100 to-lime-100 flex items-center justify-center min-h-screen">
+    <div class="bg-white p-8 rounded-3xl shadow-xl max-w-md w-full text-center space-y-6">
+      <h1 class="text-3xl font-extrabold text-gray-800">🎉 答题结束</h1>
+
+      <p class="text-sm text-gray-500">
+        选手：
+        <span id="nickname" class="text-green-700 font-semibold">加载中...</span>
+      </p>
+
+      <div class="bg-green-100 p-6 rounded-xl text-center shadow-sm">
+        <p class="text-lg text-gray-600">你的得分</p>
+        <p id="score" class="text-5xl font-bold text-green-600 animate-bounce">0</p>
+      </div>
+      <div class="flex justify-center">
+        <button class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition-colors" onclick="window.location.href='/'">
+            重新开始
+        </button>
+      </div>
+    </div>
+
+    <script>
+        const nickname = localStorage.getItem("nickname") || "匿名";
+        const score = parseInt(localStorage.getItem("score") || "0");
+      
+        const nicknameElement = document.getElementById("nickname");
+        const scoreElement = document.getElementById("score");
+        
+        if (nicknameElement) nicknameElement.textContent = nickname;
+        if (scoreElement) scoreElement.textContent = score.toString();
+      
+      </script>
+  </body>
+</html>

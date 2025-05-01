@@ -9,6 +9,9 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^5.7.10"
+    "@tailwindcss/vite": "^4.1.5",
+    "astro": "^5.7.10",
+    "leancloud-storage": "^4.15.2",
+    "tailwindcss": "^4.1.5"
   }
 }

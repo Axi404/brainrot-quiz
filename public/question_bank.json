@@ -1,0 +1,52 @@
+[
+    {
+        "name": "TungTungTungTungTung Sahur",
+        "image": "/images/tungtungtungtungtungsahur.png",
+        "audio": "/audios/tungtungtungtungtungsahur.mp3"
+    },
+    {
+        "name": "Tralalero Tralala",
+        "image": "/images/tralalero-tralala.png",
+        "audio": "/audios/tralalero-tralala.mp3"
+    },
+    {
+        "name": "Lirili Larlla",
+        "image": "/images/lirili-larlla.png",
+        "audio": "/audios/lirili-larlla.mp3"
+    },
+    {
+        "name": "Bobrito Bondito",
+        "image": "/images/bobrito-bondito.png",
+        "audio": "/audios/bobrito-bondito.mp3"
+    },
+    {
+        "name": "Bombardiro Crocodilo",
+        "image": "/images/bombardiro-crocodilo.png",
+        "audio": "/audios/bombardiro-crocodilo.mp3"
+    },
+    {
+        "name": "Bombombini Guzini",
+        "image": "/images/bombombini-guzini.png",
+        "audio": "/audios/bombombini-guzini.mp3"
+    },
+    {
+        "name": "Boneca Ambalam",
+        "image": "/images/boneca-ambalam.png",
+        "audio": "/audios/boneca-ambalam.mp3"
+    },
+    {
+        "name": "Brikus Dikus",
+        "image": "/images/brikus-dikus.png",
+        "audio": "/audios/brikus-dikus.mp3"
+    },
+    {
+        "name": "Capuccino Assasino",
+        "image": "/images/capuccino-assasino.png",
+        "audio": "/audios/capuccino-assasino.mp3"
+    },
+    {
+        "name": "Trippi Troppi",
+        "image": "/images/trippi-troppi.png",
+        "audio": "/audios/trippi-troppi.mp3"
+    }
+]

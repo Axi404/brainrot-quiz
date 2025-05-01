@@ -1,16 +1,55 @@
 ---
-
 ---
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>限时答题</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+  </head>
+  <body class="min-h-screen flex items-center justify-center bg-gradient-to-b from-sky-100 to-blue-200">
+    <div class="bg-white shadow-xl rounded-2xl p-8 w-full max-w-md space-y-6">
+      <h1 class="text-3xl font-bold text-center">限时答题</h1>
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
+      <div class="space-y-4">
+        <label class="block">
+          <span class="text-gray-700">请输入昵称</span>
+          <input id="nickname" type="text" class="mt-1 block w-full rounded border border-gray-300 p-2" placeholder="你的昵称" required />
+        </label>
+
+        <label class="block">
+          <span class="text-gray-700">选择答题时间</span>
+          <select id="duration" class="mt-1 block w-full rounded border border-gray-300 p-2">
+            <option value="10">10 秒</option>
+            <option value="60">1 分钟</option>
+            <option value="180">3 分钟</option>
+            <option value="300">5 分钟</option>
+          </select>
+        </label>
+
+        <button id="start-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white p-3 rounded font-semibold">
+          开始答题
+        </button>
+      </div>
+    </div>
+
+    <script type="module">
+      document.getElementById("start-btn").addEventListener("click", () => {
+        const nickname = document.getElementById("nickname").value.trim();
+        const duration = parseInt(document.getElementById("duration").value);
+
+        if (!nickname) {
+          alert("请输入昵称");
+          return;
+        }
+
+        localStorage.setItem("nickname", nickname);
+        localStorage.setItem("duration", duration.toString());
+        localStorage.setItem("score", "0");
+		localStorage.setItem("shouldAutoPlayAudio", "true");
+
+        window.location.href = "/quiz";
+      });
+    </script>
+  </body>
 </html>
