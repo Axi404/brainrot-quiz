@@ -14,8 +14,8 @@
       class="fixed inset-0 backdrop-blur-sm bg-white/80 flex items-center justify-center z-50 transition-opacity duration-300 opacity-100"
     >
       <div class="bg-white p-8 rounded-2xl shadow-xl max-w-sm w-full text-center space-y-4">
-        <h2 id="readyTitle" class="text-2xl font-bold text-gray-800">🎧 准备好了吗？</h2>
-        <p id="startDescription" class="text-sm text-gray-500">点击按钮开始答题并播放音频</p>
+        <h2 class="text-2xl font-bold text-gray-800">🎧 准备好了吗？</h2>
+        <p class="text-sm text-gray-500">点击按钮开始答题并播放音频</p>
         <button
           id="start-btn"
           class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg font-medium"
@@ -27,15 +27,7 @@
 
     <!-- 主页面内容 -->
     <div class="bg-white p-8 rounded-3xl shadow-xl w-full max-w-2xl text-center space-y-6">
-      <div class="flex justify-end">
-        <button id="langSwitch" class="text-sm text-gray-600 hover:text-gray-800 transition-colors">
-          English
-        </button>
-      </div>
-
-      <h2 class="text-2xl font-extrabold text-gray-800">
-        <span id="whoIs">谁是</span> <span id="question-name" class="text-indigo-600">？</span>
-      </h2>
+      <h2 class="text-2xl font-extrabold text-gray-800">谁是 <span id="question-name" class="text-indigo-600">？</span></h2>
 
       <audio id="question-audio" class="mx-auto" controls hidden></audio>
       <button
@@ -48,59 +40,19 @@
       <div id="options" class="grid grid-cols-2 gap-4"></div>
 
       <div class="flex justify-between pt-4 text-gray-500">
-        <div><span id="timeLeft">⏳</span> <span id="timer">60</span>s</div>
-        <div><span id="scoreLabel">✅ 得分：</span><span id="score">0</span></div>
+        <div>⏳ <span id="timer">60</span>s</div>
+        <div>✅ 得分：<span id="score">0</span></div>
       </div>
     </div>
 
-    <script>
-      import { translations } from '../i18n/translations';
-      import type { Language } from '../i18n/translations';
-      
-      let currentLang: Language = (localStorage.getItem('language') as Language) || 'zh';
-      
-      const updateLanguage = (lang: Language) => {
-        const t = translations[lang];
-        const elements = {
-          readyTitle: document.getElementById('readyTitle'),
-          startDescription: document.getElementById('startDescription'),
-          startBtn: document.getElementById('start-btn'),
-          whoIs: document.getElementById('whoIs'),
-          replayBtn: document.getElementById('replay-btn'),
-          timeLeft: document.getElementById('timeLeft'),
-          scoreLabel: document.getElementById('scoreLabel'),
-          langSwitch: document.getElementById('langSwitch')
-        };
-
-        if (elements.readyTitle) elements.readyTitle.textContent = t.ready;
-        if (elements.startDescription) elements.startDescription.textContent = t.startDescription;
-        if (elements.startBtn) elements.startBtn.textContent = t.startAnswering;
-        if (elements.whoIs) elements.whoIs.textContent = t.whoIs;
-        if (elements.replayBtn) elements.replayBtn.textContent = t.replayAudio;
-        if (elements.timeLeft) elements.timeLeft.textContent = t.timeLeft;
-        if (elements.scoreLabel) elements.scoreLabel.textContent = t.score;
-        if (elements.langSwitch) elements.langSwitch.textContent = lang === 'zh' ? 'English' : '中文';
-      };
-
-      // Initialize language
-      updateLanguage(currentLang);
-
-      // Language switch handler
-      const langSwitch = document.getElementById('langSwitch');
-      if (langSwitch) {
-        langSwitch.addEventListener('click', () => {
-          currentLang = currentLang === 'zh' ? 'en' : 'zh';
-          localStorage.setItem('language', currentLang);
-          updateLanguage(currentLang);
-        });
-      }
-
+    <script type="module">
       const timerEl = document.getElementById("timer");
       const scoreEl = document.getElementById("score");
       const nameEl = document.getElementById("question-name");
-      const audioEl = document.getElementById("question-audio") as HTMLAudioElement;
+      const audioEl = document.getElementById("question-audio");
       const optionsEl = document.getElementById("options");
       const replayBtn = document.getElementById("replay-btn");
+
       const overlay = document.getElementById("start-overlay");
       const startBtn = document.getElementById("start-btn");
 
@@ -111,15 +63,26 @@
       const res = await fetch("/question_bank.json");
       const questionBank = await res.json();
 
-      interface Question {
-        name: string;
-        image: string;
-        audio: string;
-      }
+      // ✅ 预加载全部资源
+      function preloadAssets(bank) {
+        window._preloadedImages = [];
+        window._preloadedAudios = [];
+        for (const item of bank) {
+          const img = new Image();
+          img.src = item.image;
+          window._preloadedImages.push(img);
 
-      function getRandomSample(arr: Question[], count: number): Question[] {
+          const audio = new Audio();
+          audio.src = item.audio;
+          window._preloadedAudios.push(audio);
+        }
+      }
+      preloadAssets(questionBank); // 提前预缓存所有资源
+
+      // 工具函数：从数组中随机抽取 count 个不重复项
+      function getRandomSample(arr, count) {
         const copy = [...arr];
-        const result: Question[] = [];
+        const result = [];
         while (result.length < count && copy.length) {
           const i = Math.floor(Math.random() * copy.length);
           result.push(copy.splice(i, 1)[0]);
@@ -128,16 +91,17 @@
       }
 
       function askNewQuestion(shouldPlay = false) {
-        if (!nameEl || !audioEl || !optionsEl) return;
-
         const choices = getRandomSample(questionBank, 4);
         const answerIndex = Math.floor(Math.random() * 4);
         const answer = choices[answerIndex];
+
         nameEl.textContent = answer.name;
         audioEl.src = answer.audio;
+
         if (shouldPlay) {
           audioEl.play().catch(() => {});
         }
+
         optionsEl.innerHTML = "";
         choices.forEach((opt, i) => {
           const img = document.createElement("img");
@@ -147,7 +111,7 @@
             "rounded-xl border-4 border-transparent hover:border-blue-500 cursor-pointer transition-all";
           img.onclick = () => {
             if (i === answerIndex) score++;
-            if (scoreEl) scoreEl.textContent = score.toString();
+            scoreEl.textContent = score;
             localStorage.setItem("score", score.toString());
             askNewQuestion(true);
           };
@@ -158,7 +122,7 @@
       function startTimer() {
         const interval = setInterval(() => {
           timeLeft--;
-          if (timerEl) timerEl.textContent = timeLeft.toString();
+          timerEl.textContent = timeLeft;
           if (timeLeft <= 0) {
             clearInterval(interval);
             window.location.href = "/result";
@@ -166,23 +130,20 @@
         }, 1000);
       }
 
-      if (startBtn && overlay) {
-        startBtn.onclick = () => {
-          overlay.classList.add("opacity-0", "pointer-events-none");
-          setTimeout(() => overlay.remove(), 300); // 平滑过渡
-          score = 0;
-          if (scoreEl) scoreEl.textContent = score.toString();
-          startTimer();
-          askNewQuestion(true); // 首题播放
-        };
-      }
+      startBtn.onclick = () => {
+        overlay.classList.add("opacity-0", "pointer-events-none");
+        setTimeout(() => overlay.remove(), 300);
 
-      if (replayBtn && audioEl) {
-        replayBtn.onclick = () => {
-          audioEl.currentTime = 0;
-          audioEl.play();
-        };
-      }
+        score = 0;
+        scoreEl.textContent = score;
+        startTimer();
+        askNewQuestion(true); // 首题自动播放
+      };
+
+      replayBtn.onclick = () => {
+        audioEl.currentTime = 0;
+        audioEl.play();
+      };
     </script>
   </body>
 </html>
