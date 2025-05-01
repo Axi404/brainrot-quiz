@@ -1,19 +1,28 @@
 ---
+
 ---
+
 <html lang="zh-CN">
   <head>
     <meta charset="utf-8" />
     <title>Brainrot Quiz</title>
     <meta name="viewport" content="width=device-width" />
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
   </head>
-  <body class="bg-gradient-to-br from-indigo-100 via-blue-100 to-purple-100 flex items-center justify-center min-h-screen">
+  <body
+    class="bg-gradient-to-br from-indigo-100 via-blue-100 to-purple-100 flex items-center justify-center min-h-screen"
+  >
     <!-- 遮罩层（美化版） -->
     <div
       id="start-overlay"
       class="fixed inset-0 backdrop-blur-sm bg-white/80 flex items-center justify-center z-50 transition-opacity duration-300 opacity-100"
     >
-      <div class="bg-white p-8 rounded-2xl shadow-xl max-w-sm w-full text-center space-y-4">
+      <div
+        class="bg-white p-8 rounded-2xl shadow-xl max-w-sm w-full text-center space-y-4"
+      >
         <h2 class="text-2xl font-bold text-gray-800">🎧 准备好了吗？</h2>
         <p class="text-sm text-gray-500">点击按钮开始答题并播放音频</p>
         <button
@@ -26,8 +35,12 @@
     </div>
 
     <!-- 主页面内容 -->
-    <div class="bg-white p-8 rounded-3xl shadow-xl w-full max-w-2xl text-center space-y-6">
-      <h2 class="text-2xl font-extrabold text-gray-800">谁是 <span id="question-name" class="text-indigo-600">？</span></h2>
+    <div
+      class="bg-white p-8 rounded-3xl shadow-xl w-full max-w-2xl text-center space-y-6"
+    >
+      <h2 class="text-2xl font-extrabold text-gray-800">
+        谁是 <span id="question-name" class="text-indigo-600">？</span>
+      </h2>
 
       <audio id="question-audio" class="mx-auto" controls hidden></audio>
       <button
