@@ -4,21 +4,27 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
-    <title>限时答题</title>
+    <title>Brainrot Quiz</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
   </head>
   <body class="min-h-screen flex items-center justify-center bg-gradient-to-b from-sky-100 to-blue-200">
     <div class="bg-white shadow-xl rounded-2xl p-8 w-full max-w-md space-y-6">
-      <h1 class="text-3xl font-bold text-center">限时答题</h1>
+      <div class="flex justify-end">
+        <button id="langSwitch" class="text-sm text-gray-600 hover:text-gray-800 transition-colors">
+          English
+        </button>
+      </div>
+
+      <h1 id="title" class="text-3xl font-bold text-center">限时答题</h1>
 
       <div class="space-y-4">
         <label class="block">
-          <span class="text-gray-700">请输入昵称</span>
+          <span id="nicknameLabel" class="text-gray-700">请输入昵称</span>
           <input id="nickname" type="text" class="mt-1 block w-full rounded border border-gray-300 p-2" placeholder="你的昵称" required />
         </label>
 
         <label class="block">
-          <span class="text-gray-700">选择答题时间</span>
+          <span id="timeLabel" class="text-gray-700">选择答题时间</span>
           <select id="duration" class="mt-1 block w-full rounded border border-gray-300 p-2">
             <option value="10">10 秒</option>
             <option value="60">1 分钟</option>
@@ -33,23 +39,75 @@
       </div>
     </div>
 
-    <script type="module">
-      document.getElementById("start-btn").addEventListener("click", () => {
-        const nickname = document.getElementById("nickname").value.trim();
-        const duration = parseInt(document.getElementById("duration").value);
+    <script>
+      import { translations } from '../i18n/translations';
+      import type { Language } from '../i18n/translations';
+      
+      let currentLang: Language = (localStorage.getItem('language') as Language) || 'zh';
+      
+      const updateLanguage = (lang: Language) => {
+        const t = translations[lang];
+        const elements = {
+          title: document.getElementById('title'),
+          nicknameLabel: document.getElementById('nicknameLabel'),
+          nickname: document.getElementById('nickname') as HTMLInputElement,
+          timeLabel: document.getElementById('timeLabel'),
+          duration: document.getElementById('duration') as HTMLSelectElement,
+          startBtn: document.getElementById('start-btn'),
+          langSwitch: document.getElementById('langSwitch')
+        };
 
-        if (!nickname) {
-          alert("请输入昵称");
-          return;
+        document.title = t.title;
+        if (elements.title) elements.title.textContent = t.title;
+        if (elements.nicknameLabel) elements.nicknameLabel.textContent = t.enterNickname;
+        if (elements.nickname) elements.nickname.placeholder = t.nicknamePlaceholder;
+        if (elements.timeLabel) elements.timeLabel.textContent = t.selectTime;
+        if (elements.duration) {
+          elements.duration.options[0].text = `10 ${t.seconds}`;
+          elements.duration.options[1].text = `1 ${t.minutes}`;
+          elements.duration.options[2].text = `3 ${t.minutes}`;
+          elements.duration.options[3].text = `5 ${t.minutes}`;
         }
+        if (elements.startBtn) elements.startBtn.textContent = t.startQuiz;
+        if (elements.langSwitch) elements.langSwitch.textContent = lang === 'zh' ? 'English' : '中文';
+      };
 
-        localStorage.setItem("nickname", nickname);
-        localStorage.setItem("duration", duration.toString());
-        localStorage.setItem("score", "0");
-		localStorage.setItem("shouldAutoPlayAudio", "true");
+      // Initialize language
+      updateLanguage(currentLang);
 
-        window.location.href = "/quiz";
-      });
+      // Language switch handler
+      const langSwitch = document.getElementById('langSwitch');
+      if (langSwitch) {
+        langSwitch.addEventListener('click', () => {
+          currentLang = currentLang === 'zh' ? 'en' : 'zh';
+          localStorage.setItem('language', currentLang);
+          updateLanguage(currentLang);
+        });
+      }
+
+      // Start button handler
+      const startBtn = document.getElementById("start-btn");
+      if (startBtn) {
+        startBtn.addEventListener("click", () => {
+          const nicknameInput = document.getElementById("nickname") as HTMLInputElement;
+          const durationSelect = document.getElementById("duration") as HTMLSelectElement;
+          
+          const nickname = nicknameInput.value.trim();
+          const duration = parseInt(durationSelect.value);
+
+          if (!nickname) {
+            alert(translations[currentLang].pleaseEnterNickname);
+            return;
+          }
+
+          localStorage.setItem("nickname", nickname);
+          localStorage.setItem("duration", duration.toString());
+          localStorage.setItem("score", "0");
+          localStorage.setItem("shouldAutoPlayAudio", "true");
+
+          window.location.href = "/quiz";
+        });
+      }
     </script>
   </body>
 </html>
