@@ -124,6 +124,7 @@
             "rounded-xl border-4 border-transparent hover:border-blue-500 cursor-pointer transition-all";
           img.onclick = () => {
             if (i === answerIndex) score++;
+            else score--;
             scoreEl.textContent = score;
             localStorage.setItem("score", score.toString());
             askNewQuestion(true);
