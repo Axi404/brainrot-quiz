@@ -1,16 +1,43 @@
 ---
+
 ---
+
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
     <title>Brainrot Quiz</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
-  </head>
-  <body class="min-h-screen flex items-center justify-center bg-gradient-to-b from-sky-100 to-blue-200">
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-KNV6KMXTRC"
+    ></script>
+    <script>
+      /** @ts-ignore */
+      window.dataLayer = window.dataLayer || [];
+      /** @ts-ignore */
+      function gtag() {
+        /** @ts-ignore */
+        dataLayer.push(arguments);
+      }
+      /** @ts-ignore */
+      gtag("js", new Date());
+      /** @ts-ignore */
+      gtag("config", "G-KNV6KMXTRC");
+    </script></head
+  >
+  <!-- Google tag (gtag.js) -->
+
+  <body
+    class="min-h-screen flex items-center justify-center bg-gradient-to-b from-sky-100 to-blue-200"
+  >
     <div class="bg-white shadow-xl rounded-2xl p-8 w-full max-w-md space-y-6">
       <div class="flex justify-end">
-        <button id="langSwitch" class="text-sm text-gray-600 hover:text-gray-800 transition-colors">
+        <button
+          id="langSwitch"
+          class="text-sm text-gray-600 hover:text-gray-800 transition-colors"
+        >
           English
         </button>
       </div>
@@ -20,12 +47,21 @@
       <div class="space-y-4">
         <label class="block">
           <span id="nicknameLabel" class="text-gray-700">请输入昵称</span>
-          <input id="nickname" type="text" class="mt-1 block w-full rounded border border-gray-300 p-2" placeholder="你的昵称" required />
+          <input
+            id="nickname"
+            type="text"
+            class="mt-1 block w-full rounded border border-gray-300 p-2"
+            placeholder="你的昵称"
+            required
+          />
         </label>
 
         <label class="block">
           <span id="timeLabel" class="text-gray-700">选择答题时间</span>
-          <select id="duration" class="mt-1 block w-full rounded border border-gray-300 p-2">
+          <select
+            id="duration"
+            class="mt-1 block w-full rounded border border-gray-300 p-2"
+          >
             <option value="10">10 秒</option>
             <option value="60">1 分钟</option>
             <option value="180">3 分钟</option>
@@ -33,34 +69,40 @@
           </select>
         </label>
 
-        <button id="start-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white p-3 rounded font-semibold">
+        <button
+          id="start-btn"
+          class="w-full bg-blue-600 hover:bg-blue-700 text-white p-3 rounded font-semibold"
+        >
           开始答题
         </button>
       </div>
     </div>
 
     <script>
-      import { translations } from '../i18n/translations';
-      import type { Language } from '../i18n/translations';
-      
-      let currentLang: Language = (localStorage.getItem('language') as Language) || 'zh';
-      
+      import { translations } from "../i18n/translations";
+      import type { Language } from "../i18n/translations";
+
+      let currentLang: Language =
+        (localStorage.getItem("language") as Language) || "zh";
+
       const updateLanguage = (lang: Language) => {
         const t = translations[lang];
         const elements = {
-          title: document.getElementById('title'),
-          nicknameLabel: document.getElementById('nicknameLabel'),
-          nickname: document.getElementById('nickname') as HTMLInputElement,
-          timeLabel: document.getElementById('timeLabel'),
-          duration: document.getElementById('duration') as HTMLSelectElement,
-          startBtn: document.getElementById('start-btn'),
-          langSwitch: document.getElementById('langSwitch')
+          title: document.getElementById("title"),
+          nicknameLabel: document.getElementById("nicknameLabel"),
+          nickname: document.getElementById("nickname") as HTMLInputElement,
+          timeLabel: document.getElementById("timeLabel"),
+          duration: document.getElementById("duration") as HTMLSelectElement,
+          startBtn: document.getElementById("start-btn"),
+          langSwitch: document.getElementById("langSwitch"),
         };
 
         document.title = t.title;
         if (elements.title) elements.title.textContent = t.title;
-        if (elements.nicknameLabel) elements.nicknameLabel.textContent = t.enterNickname;
-        if (elements.nickname) elements.nickname.placeholder = t.nicknamePlaceholder;
+        if (elements.nicknameLabel)
+          elements.nicknameLabel.textContent = t.enterNickname;
+        if (elements.nickname)
+          elements.nickname.placeholder = t.nicknamePlaceholder;
         if (elements.timeLabel) elements.timeLabel.textContent = t.selectTime;
         if (elements.duration) {
           elements.duration.options[0].text = `10 ${t.seconds}`;
@@ -69,18 +111,19 @@
           elements.duration.options[3].text = `5 ${t.minutes}`;
         }
         if (elements.startBtn) elements.startBtn.textContent = t.startQuiz;
-        if (elements.langSwitch) elements.langSwitch.textContent = lang === 'zh' ? 'English' : '中文';
+        if (elements.langSwitch)
+          elements.langSwitch.textContent = lang === "zh" ? "English" : "中文";
       };
 
       // Initialize language
       updateLanguage(currentLang);
 
       // Language switch handler
-      const langSwitch = document.getElementById('langSwitch');
+      const langSwitch = document.getElementById("langSwitch");
       if (langSwitch) {
-        langSwitch.addEventListener('click', () => {
-          currentLang = currentLang === 'zh' ? 'en' : 'zh';
-          localStorage.setItem('language', currentLang);
+        langSwitch.addEventListener("click", () => {
+          currentLang = currentLang === "zh" ? "en" : "zh";
+          localStorage.setItem("language", currentLang);
           updateLanguage(currentLang);
         });
       }
@@ -89,12 +132,17 @@
       const startBtn = document.getElementById("start-btn");
       if (startBtn) {
         startBtn.addEventListener("click", () => {
-          const nicknameInput = document.getElementById("nickname") as HTMLInputElement;
-          const durationSelect = document.getElementById("duration") as HTMLSelectElement;
-          
+          const nicknameInput = document.getElementById(
+            "nickname",
+          ) as HTMLInputElement;
+          const durationSelect = document.getElementById(
+            "duration",
+          ) as HTMLSelectElement;
+
           const nickname = nicknameInput.value.trim();
           const duration = parseInt(durationSelect.value);
-          const timeTrack = durationSelect.options[durationSelect.selectedIndex].text;
+          const timeTrack =
+            durationSelect.options[durationSelect.selectedIndex].text;
 
           if (!nickname) {
             alert(translations[currentLang].pleaseEnterNickname);
