@@ -48,5 +48,60 @@
         "name": "Trippi Troppi",
         "image": "/images/trippi-troppi.png",
         "audio": "/audios/trippi-troppi.mp3"
+    },
+    {
+        "name": "Brr Brr Patapim",
+        "image": "/images/brr-brr-patapim.png",
+        "audio": "/audios/brr-brr-patapim.mp3"
+    },
+    {
+        "name": "La Vacca Saturno Saturnita",
+        "image": "/images/la-vacca-saturno-saturnita.png",
+        "audio": "/audios/la-vacca-saturno-saturnita.mp3"
+    },
+    {
+        "name": "Bluebernni",
+        "image": "/images/bluebernni.png",
+        "audio": "/audios/bluebernni.mp3"
+    },
+    {
+        "name": "Bobrinni Cocosini",
+        "image": "/images/bobrinni-cocosini.png",
+        "audio": "/audios/bobrinni-cocosini.mp3"
+    },
+    {
+        "name": "Frigo Camelo",
+        "image": "/images/frigo-camelo.png",
+        "audio": "/audios/frigo-camelo.mp3"
+    },
+    {
+        "name": "Glorbo Frutto Drillo",
+        "image": "/images/glorbo-frutto-drillo.png",
+        "audio": "/audios/glorbo-frutto-drillo.mp3"
+    },
+    {
+        "name": "Ic Cacto Hipopotoma",
+        "image": "/images/ic-cacto-hipopotoma.png",
+        "audio": "/audios/ic-cacto-hipopotoma.mp3"
+    },
+    {
+        "name": "Pici Pici Lamanici",
+        "image": "/images/pici-pici-lamanici.png",
+        "audio": "/audios/pici-pici-lamanici.mp3"
+    },
+    {
+        "name": "Shimpanzinni Bananini",
+        "image": "/images/shimpanzinni-bananini.png",
+        "audio": "/audios/shimpanzinni-bananini.mp3"
+    },
+    {
+        "name": "Strawberino Rhino",
+        "image": "/images/strawberino-rhino.png",
+        "audio": "/audios/strawberino-rhino.mp3"
+    },
+    {
+        "name": "Trulimerotrulicina",
+        "image": "/images/trulimerotrulicina.png",
+        "audio": "/audios/trulimerotrulicina.mp3"
     }
 ]
