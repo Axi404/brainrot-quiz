@@ -25,6 +25,8 @@
       <div class="bg-green-100 p-6 rounded-xl text-center shadow-sm">
         <p id="scoreLabel" class="text-lg text-gray-600">你的得分</p>
         <p id="score" class="text-5xl font-bold text-green-600 animate-bounce">0</p>
+        <p id="timeTrackLabel" class="text-lg text-gray-600 mt-4">选择的时间赛道</p>
+        <p id="timeTrack" class="text-2xl font-bold text-green-600">加载中...</p>
       </div>
       <div class="flex justify-center">
         <button id="restartBtn" class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition-colors">
@@ -46,6 +48,7 @@
           quizEnd: document.getElementById('quizEnd'),
           playerLabel: document.getElementById('playerLabel'),
           scoreLabel: document.getElementById('scoreLabel'),
+          timeTrackLabel: document.getElementById('timeTrackLabel'),
           restartBtn: document.getElementById('restartBtn'),
           langSwitch: document.getElementById('langSwitch')
         };
@@ -53,19 +56,26 @@
         if (elements.title) elements.title = t.title;
         if (elements.quizEnd) elements.quizEnd.textContent = t.quizEnd;
         if (elements.playerLabel) elements.playerLabel.textContent = t.player;
-        if (elements.scoreLabel) elements.scoreLabel.textContent = t.score;
+        if (elements.scoreLabel) elements.scoreLabel.textContent = t.yourScore;
+        if (elements.timeTrackLabel) elements.timeTrackLabel.textContent = t.timeTrack;
         if (elements.restartBtn) elements.restartBtn.textContent = t.restart;
         if (elements.langSwitch) elements.langSwitch.textContent = lang === 'zh' ? 'English' : '中文';
       };
 
       const nickname = localStorage.getItem("nickname") || "匿名";
       const score = parseInt(localStorage.getItem("score") || "0");
+      const remainingTime = parseInt(localStorage.getItem("remainingTime") || "0");
+      const timeTrack = localStorage.getItem("timeTrack") || "未知";
       
       const nicknameElement = document.getElementById("nickname");
       const scoreElement = document.getElementById("score");
+      const remainingTimeElement = document.getElementById("remainingTime");
+      const timeTrackElement = document.getElementById("timeTrack");
       
       if (nicknameElement) nicknameElement.textContent = nickname;
       if (scoreElement) scoreElement.textContent = score.toString();
+      if (remainingTimeElement) remainingTimeElement.textContent = remainingTime.toString();
+      if (timeTrackElement) timeTrackElement.textContent = timeTrack;
 
       // Initialize language
       updateLanguage(currentLang);

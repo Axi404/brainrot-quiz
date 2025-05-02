@@ -26,7 +26,8 @@ export const translations = {
     
     // 结果页
     quizEnd: "🎉 答题结束",
-    yourScore: "你的得分"
+    yourScore: "你的得分",
+    timeTrack: "选择的时间赛道"
   },
   en: {
     // Common
@@ -55,7 +56,8 @@ export const translations = {
     
     // Result page
     quizEnd: "🎉 Quiz Complete",
-    yourScore: "Your Score"
+    yourScore: "Your Score",
+    timeTrack: "Selected Time Track"
   }
 };
 

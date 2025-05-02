@@ -94,6 +94,7 @@
           
           const nickname = nicknameInput.value.trim();
           const duration = parseInt(durationSelect.value);
+          const timeTrack = durationSelect.options[durationSelect.selectedIndex].text;
 
           if (!nickname) {
             alert(translations[currentLang].pleaseEnterNickname);
@@ -102,6 +103,7 @@
 
           localStorage.setItem("nickname", nickname);
           localStorage.setItem("duration", duration.toString());
+          localStorage.setItem("timeTrack", timeTrack);
           localStorage.setItem("score", "0");
           localStorage.setItem("shouldAutoPlayAudio", "true");
 
