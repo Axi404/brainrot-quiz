@@ -103,5 +103,10 @@
         "name": "Trulimerotrulicina",
         "image": "/images/trulimerotrulicina.png",
         "audio": "/audios/trulimerotrulicina.mp3"
+    },
+    {
+        "name": "Luguanluguanlulushijiandaole",
+        "image": "/images/luguanluguanlulushijiandaole.jpg",
+        "audio": "/audios/luguanluguanlulushijiandaole.mp3"
     }
 ]
