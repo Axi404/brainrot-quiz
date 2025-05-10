@@ -110,6 +110,20 @@
       const res = await fetch("/question_bank.json");
       const questionBank = await res.json();
 
+      function preloadAssets(bank) {
+        window._preloadedImages = [];
+        window._preloadedAudios = [];
+        for (const item of bank) {
+          const img = new Image();
+          img.src = item.image;
+          window._preloadedImages.push(img);
+
+          const audio = new Audio();
+          audio.src = item.audio;
+          window._preloadedAudios.push(audio);
+        }
+      }
+      preloadAssets(questionBank);
       // 工具函数：从数组中随机抽取 count 个不重复项
       function getRandomSample(arr, count) {
         const copy = [...arr];
