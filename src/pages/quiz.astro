@@ -23,8 +23,12 @@
       <div
         class="bg-white p-8 rounded-2xl shadow-xl max-w-sm w-full text-center space-y-4"
       >
-        <h2 class="text-2xl font-bold text-gray-800">🎧 准备好了吗？</h2>
-        <p class="text-sm text-gray-500">点击按钮开始答题并播放音频</p>
+        <h2 class="text-2xl font-bold text-gray-800" id="ready">
+          🎧 准备好了吗？
+        </h2>
+        <p class="text-sm text-gray-500" id="startDescription">
+          点击按钮开始答题并播放音频
+        </p>
         <button
           id="start-btn"
           class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg font-medium"
@@ -58,7 +62,37 @@
       </div>
     </div>
 
-    <script type="module">
+    <script>
+      import { translations } from "../i18n/translations";
+      import type { Language } from "../i18n/translations";
+
+      let currentLang: Language =
+        (localStorage.getItem("language") as Language) || "zh";
+
+      const updateLanguage = (lang: Language) => {
+        const t = translations[lang];
+        const elements = {
+          title: document.title,
+          ready: document.getElementById("ready"),
+          startDescription: document.getElementById("startDescription"),
+          startAnswering: document.getElementById("start-btn"),
+          whoIs: document.getElementById("question-name"),
+          replayAudio: document.getElementById("replay-btn"),
+          score: document.getElementById("score"),
+        };
+
+        if (elements.ready) elements.ready.textContent = t.ready;
+        if (elements.startDescription)
+          elements.startDescription.textContent = t.startDescription;
+        if (elements.startAnswering)
+          elements.startAnswering.textContent = t.startAnswering;
+        if (elements.whoIs) elements.whoIs.textContent = t.whoIs;
+        if (elements.replayAudio)
+          elements.replayAudio.textContent = t.replayAudio;
+      };
+
+      updateLanguage(currentLang);
+
       const timerEl = document.getElementById("timer");
       const scoreEl = document.getElementById("score");
       const nameEl = document.getElementById("question-name");
@@ -75,22 +109,6 @@
 
       const res = await fetch("/question_bank.json");
       const questionBank = await res.json();
-
-      // ✅ 预加载全部资源
-      function preloadAssets(bank) {
-        window._preloadedImages = [];
-        window._preloadedAudios = [];
-        for (const item of bank) {
-          const img = new Image();
-          img.src = item.image;
-          window._preloadedImages.push(img);
-
-          const audio = new Audio();
-          audio.src = item.audio;
-          window._preloadedAudios.push(audio);
-        }
-      }
-      preloadAssets(questionBank); // 提前预缓存所有资源
 
       // 工具函数：从数组中随机抽取 count 个不重复项
       function getRandomSample(arr, count) {
