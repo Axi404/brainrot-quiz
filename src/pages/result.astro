@@ -1,102 +1,392 @@
 ---
+// 导入类型定义
+import '../types/quiz.ts';
 ---
+
 <html lang="zh-CN">
   <head>
     <meta charset="utf-8" />
-    <title>Brainrot Quiz</title>
+    <title>Brainrot Quiz - 结果</title>
     <meta name="viewport" content="width=device-width" />
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+    <link 
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" 
+      rel="stylesheet" 
+    />
+    <style>
+      .celebration {
+        animation: celebration 2s ease-in-out;
+      }
+      @keyframes celebration {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+      }
+      .score-animation {
+        animation: scoreCount 2s ease-out;
+      }
+      @keyframes scoreCount {
+        from { 
+          transform: scale(0);
+          opacity: 0;
+        }
+        to { 
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+      .confetti {
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        background: #f39c12;
+        animation: confetti-fall 3s ease-in-out infinite;
+      }
+      @keyframes confetti-fall {
+        0% {
+          transform: translateY(-100vh) rotate(0deg);
+          opacity: 1;
+        }
+        100% {
+          transform: translateY(100vh) rotate(720deg);
+          opacity: 0;
+        }
+      }
+      .gradient-bg {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      }
+    </style>
   </head>
-  <body class="bg-gradient-to-br from-green-100 via-emerald-100 to-lime-100 flex items-center justify-center min-h-screen">
-    <div class="bg-white p-8 rounded-3xl shadow-xl max-w-md w-full text-center space-y-6">
+  
+  <body class="gradient-bg min-h-screen flex items-center justify-center p-4">
+    <!-- 彩带效果 -->
+    <div id="confetti-container" class="fixed inset-0 pointer-events-none z-10"></div>
+    
+    <div class="bg-white/95 backdrop-blur-sm p-8 rounded-3xl shadow-2xl max-w-lg w-full text-center space-y-8 relative">
+      <!-- 语言切换 -->
       <div class="flex justify-end">
-        <button id="langSwitch" class="text-sm text-gray-600 hover:text-gray-800 transition-colors">
+        <button 
+          id="langSwitch" 
+          class="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg transition-colors duration-200"
+        >
           English
         </button>
       </div>
       
-      <h1 id="quizEnd" class="text-3xl font-extrabold text-gray-800">🎉 答题结束</h1>
-
-      <p class="text-sm text-gray-500">
-        <span id="playerLabel">选手</span>：
-        <span id="nickname" class="text-green-700 font-semibold">加载中...</span>
-      </p>
-
-      <div class="bg-green-100 p-6 rounded-xl text-center shadow-sm">
-        <p id="scoreLabel" class="text-lg text-gray-600">你的得分</p>
-        <p id="score" class="text-5xl font-bold text-green-600 animate-bounce">0</p>
-        <p id="timeTrackLabel" class="text-lg text-gray-600 mt-4">选择的时间赛道</p>
-        <p id="timeTrack" class="text-2xl font-bold text-green-600">加载中...</p>
+      <!-- 标题 -->
+      <div class="celebration space-y-4">
+        <div class="text-6xl">🎉</div>
+        <h1 id="quizEnd" class="text-4xl font-extrabold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
+          答题结束
+        </h1>
       </div>
-      <div class="flex justify-center">
-        <button id="restartBtn" class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition-colors">
-            重新开始
+
+      <!-- 玩家信息 -->
+      <div class="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-2xl">
+        <div class="flex items-center justify-center space-x-3 mb-4">
+          <span class="text-2xl">👤</span>
+          <span id="playerLabel" class="text-gray-600 font-medium">选手</span>
+          <span class="text-gray-400">:</span>
+          <span id="nickname" class="text-blue-700 font-bold text-lg">加载中...</span>
+        </div>
+        
+        <div class="grid grid-cols-2 gap-4 mt-4">
+          <div class="bg-white/70 p-3 rounded-xl">
+            <div class="text-2xl mb-1">⏰</div>
+            <div class="text-sm text-gray-600" id="timeTrackLabel">时间赛道</div>
+            <div id="timeTrack" class="font-bold text-purple-600">加载中...</div>
+          </div>
+          <div class="bg-white/70 p-3 rounded-xl">
+            <div class="text-2xl mb-1">🎯</div>
+            <div class="text-sm text-gray-600">答题数量</div>
+            <div id="questionCount" class="font-bold text-indigo-600">-</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 分数显示 -->
+      <div class="bg-gradient-to-r from-green-100 to-emerald-100 p-8 rounded-2xl shadow-inner">
+        <div id="scoreLabel" class="text-xl text-gray-700 mb-4">你的得分</div>
+        <div class="score-animation">
+          <div id="score" class="text-7xl font-bold text-green-600 mb-2">0</div>
+          <div id="scoreDescription" class="text-sm text-gray-600">加载中...</div>
+        </div>
+        
+        <!-- 成绩评价 -->
+        <div id="performance" class="mt-4 p-4 rounded-xl text-sm font-medium"></div>
+      </div>
+
+      <!-- 统计信息 -->
+      <div class="grid grid-cols-3 gap-4">
+        <div class="bg-blue-50 p-4 rounded-xl">
+          <div class="text-xl">✅</div>
+          <div class="text-xs text-gray-600">答对</div>
+          <div id="correctCount" class="font-bold text-blue-600">-</div>
+        </div>
+        <div class="bg-red-50 p-4 rounded-xl">
+          <div class="text-xl">❌</div>
+          <div class="text-xs text-gray-600">答错</div>
+          <div id="wrongCount" class="font-bold text-red-600">-</div>
+        </div>
+        <div class="bg-yellow-50 p-4 rounded-xl">
+          <div class="text-xl">📊</div>
+          <div class="text-xs text-gray-600">正确率</div>
+          <div id="accuracy" class="font-bold text-yellow-600">-%</div>
+        </div>
+      </div>
+
+      <!-- 操作按钮 -->
+      <div class="flex gap-4">
+        <button 
+          id="shareBtn" 
+          class="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 shadow-lg active:scale-95"
+        >
+          🔗 分享成绩
         </button>
+        <button 
+          id="restartBtn" 
+          class="flex-1 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 shadow-lg active:scale-95"
+        >
+          🔄 重新开始
+        </button>
+      </div>
+
+      <!-- 排行榜预留位置 -->
+      <div class="bg-gray-50 p-4 rounded-xl">
+        <div class="text-sm text-gray-500">🏆 即将推出排行榜功能</div>
       </div>
     </div>
 
     <script>
       import { translations } from '../i18n/translations';
       import type { Language } from '../i18n/translations';
-      
-      let currentLang: Language = (localStorage.getItem('language') as Language) || 'zh';
-      
-      const updateLanguage = (lang: Language) => {
-        const t = translations[lang];
-        const elements = {
-          title: document.title,
-          quizEnd: document.getElementById('quizEnd'),
-          playerLabel: document.getElementById('playerLabel'),
-          scoreLabel: document.getElementById('scoreLabel'),
-          timeTrackLabel: document.getElementById('timeTrackLabel'),
-          restartBtn: document.getElementById('restartBtn'),
-          langSwitch: document.getElementById('langSwitch')
-        };
+      import { 
+        getElementById,
+        getElement,
+        safeSetTextContent,
+        safeAddEventListener,
+        toggleElement 
+      } from '../utils/domHelpers';
 
-        if (elements.title) elements.title = t.title;
-        if (elements.quizEnd) elements.quizEnd.textContent = t.quizEnd;
-        if (elements.playerLabel) elements.playerLabel.textContent = t.player;
-        if (elements.scoreLabel) elements.scoreLabel.textContent = t.yourScore;
-        if (elements.timeTrackLabel) elements.timeTrackLabel.textContent = t.timeTrack;
-        if (elements.restartBtn) elements.restartBtn.textContent = t.restart;
-        if (elements.langSwitch) elements.langSwitch.textContent = lang === 'zh' ? 'English' : '中文';
+      // 类型安全的元素获取
+      const elements = {
+        langSwitch: getElement<HTMLButtonElement>('langSwitch'),
+        quizEnd: getElement<HTMLHeadingElement>('quizEnd'),
+        playerLabel: getElement<HTMLSpanElement>('playerLabel'),
+        nickname: getElement<HTMLSpanElement>('nickname'),
+        timeTrackLabel: getElement<HTMLDivElement>('timeTrackLabel'),
+        timeTrack: getElement<HTMLDivElement>('timeTrack'),
+        questionCount: getElement<HTMLDivElement>('questionCount'),
+        scoreLabel: getElement<HTMLDivElement>('scoreLabel'),
+        score: getElement<HTMLDivElement>('score'),
+        scoreDescription: getElement<HTMLDivElement>('scoreDescription'),
+        performance: getElement<HTMLDivElement>('performance'),
+        correctCount: getElement<HTMLDivElement>('correctCount'),
+        wrongCount: getElement<HTMLDivElement>('wrongCount'),
+        accuracy: getElement<HTMLDivElement>('accuracy'),
+        shareBtn: getElement<HTMLButtonElement>('shareBtn'),
+        restartBtn: getElement<HTMLButtonElement>('restartBtn'),
+        confettiContainer: getElementById<HTMLDivElement>('confetti-container')
       };
 
-      const nickname = localStorage.getItem("nickname") || "匿名";
-      const score = parseInt(localStorage.getItem("score") || "0");
-      const remainingTime = parseInt(localStorage.getItem("remainingTime") || "0");
-      const timeTrack = localStorage.getItem("timeTrack") || "未知";
+      // 当前语言
+      let currentLang: Language = (localStorage.getItem('language') as Language) || 'zh';
       
-      const nicknameElement = document.getElementById("nickname");
-      const scoreElement = document.getElementById("score");
-      const remainingTimeElement = document.getElementById("remainingTime");
-      const timeTrackElement = document.getElementById("timeTrack");
-      
-      if (nicknameElement) nicknameElement.textContent = nickname;
-      if (scoreElement) scoreElement.textContent = score.toString();
-      if (remainingTimeElement) remainingTimeElement.textContent = remainingTime.toString();
-      if (timeTrackElement) timeTrackElement.textContent = timeTrack;
+      // 游戏数据
+      interface GameResults {
+        nickname: string;
+        score: number;
+        timeTrack: string;
+        duration: number;
+        totalQuestions: number;
+        correctAnswers: number;
+        wrongAnswers: number;
+        accuracy: number;
+      }
 
-      // Initialize language
-      updateLanguage(currentLang);
+      // 更新语言
+      const updateLanguage = (lang: Language): void => {
+        const t = translations[lang];
+        
+        document.title = `${t.title} - 结果`;
+        safeSetTextContent(elements.quizEnd, t.quizEnd);
+        safeSetTextContent(elements.playerLabel, t.player);
+        safeSetTextContent(elements.scoreLabel, t.yourScore);
+        safeSetTextContent(elements.timeTrackLabel, t.timeTrack);
+        safeSetTextContent(elements.restartBtn, `🔄 ${t.restart}`);
+        safeSetTextContent(elements.langSwitch, lang === 'zh' ? 'English' : '中文');
+      };
 
-      // Language switch handler
-      const langSwitch = document.getElementById('langSwitch');
-      if (langSwitch) {
-        langSwitch.addEventListener('click', () => {
+      // 创建彩带效果
+      const createConfetti = (): void => {
+        if (!elements.confettiContainer) return;
+        
+        const colors = ['#f39c12', '#e74c3c', '#9b59b6', '#3498db', '#2ecc71'];
+        
+        for (let i = 0; i < 50; i++) {
+          const confetti = document.createElement('div');
+          confetti.className = 'confetti';
+          confetti.style.left = Math.random() * 100 + '%';
+          confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+          confetti.style.animationDelay = Math.random() * 3 + 's';
+          confetti.style.animationDuration = (Math.random() * 3 + 2) + 's';
+          
+          elements.confettiContainer.appendChild(confetti);
+          
+          // 3秒后移除彩带
+          setTimeout(() => {
+            if (confetti.parentNode) {
+              confetti.parentNode.removeChild(confetti);
+            }
+          }, 5000);
+        }
+      };
+
+      // 计算游戏结果
+      const calculateResults = (): GameResults => {
+        const nickname = localStorage.getItem('nickname') || '匿名';
+        const score = parseInt(localStorage.getItem('score') || '0');
+        const timeTrack = localStorage.getItem('timeTrack') || '未知';
+        const duration = parseInt(localStorage.getItem('duration') || '60');
+        
+        // 使用实际答题数据
+        const totalQuestions = parseInt(localStorage.getItem('totalQuestions') || '0');
+        const correctAnswers = parseInt(localStorage.getItem('correctAnswers') || '0');
+        const wrongAnswers = Math.max(0, totalQuestions - correctAnswers);
+        const accuracy = totalQuestions > 0 ? Math.round((correctAnswers / totalQuestions) * 100) : 0;
+        
+        return {
+          nickname,
+          score,
+          timeTrack,
+          duration,
+          totalQuestions,
+          correctAnswers,
+          wrongAnswers,
+          accuracy
+        };
+      };
+
+      // 获取成绩评价
+      const getPerformanceMessage = (accuracy: number, score: number): {text: string, className: string} => {
+        if (score <= 0) {
+          return {
+            text: "继续努力，熟能生巧！",
+            className: "bg-red-100 text-red-700"
+          };
+        } else if (accuracy >= 90) {
+          return {
+            text: "🏆 太棒了！你是真正的大师！",
+            className: "bg-yellow-100 text-yellow-700"
+          };
+        } else if (accuracy >= 75) {
+          return {
+            text: "🌟 表现优秀！继续保持！",
+            className: "bg-green-100 text-green-700"
+          };
+        } else if (accuracy >= 50) {
+          return {
+            text: "👍 不错的成绩！还有进步空间！",
+            className: "bg-blue-100 text-blue-700"
+          };
+        } else {
+          return {
+            text: "💪 加油！多练习会更好的！",
+            className: "bg-orange-100 text-orange-700"
+          };
+        }
+      };
+
+      // 动画更新分数
+      const animateScore = (finalScore: number): void => {
+        let currentScore = 0;
+        const increment = Math.max(1, Math.floor(finalScore / 20));
+        const interval = setInterval(() => {
+          currentScore += increment;
+          if (currentScore >= finalScore) {
+            currentScore = finalScore;
+            clearInterval(interval);
+          }
+          safeSetTextContent(elements.score, currentScore.toString());
+        }, 50);
+      };
+
+      // 分享成绩
+      const shareResults = (results: GameResults): void => {
+        const shareText = `我在 Brainrot Quiz 中得了 ${results.score} 分！正确率 ${results.accuracy}%！你能超过我吗？`;
+        
+        if (navigator.share) {
+          navigator.share({
+            title: 'Brainrot Quiz 成绩',
+            text: shareText,
+            url: window.location.origin
+          });
+        } else {
+          // 复制到剪贴板
+          navigator.clipboard.writeText(`${shareText} ${window.location.origin}`).then(() => {
+            alert('成绩已复制到剪贴板！');
+          }).catch(() => {
+            alert('分享链接：' + shareText);
+          });
+        }
+      };
+
+      // 显示结果
+      const displayResults = (): void => {
+        const results = calculateResults();
+        
+        // 显示基本信息
+        safeSetTextContent(elements.nickname, results.nickname);
+        safeSetTextContent(elements.timeTrack, results.timeTrack);
+        safeSetTextContent(elements.questionCount, results.totalQuestions.toString());
+        
+        // 动画显示分数
+        animateScore(results.score);
+        
+        // 显示统计信息
+        safeSetTextContent(elements.correctCount, results.correctAnswers.toString());
+        safeSetTextContent(elements.wrongCount, results.wrongAnswers.toString());
+        safeSetTextContent(elements.accuracy, `${results.accuracy}%`);
+        
+        // 显示成绩评价
+        const performance = getPerformanceMessage(results.accuracy, results.score);
+        safeSetTextContent(elements.performance, performance.text);
+        elements.performance.className = `mt-4 p-4 rounded-xl text-sm font-medium ${performance.className}`;
+        
+        // 显示分数描述
+        const scoreDesc = results.score > 0 ? 
+          `在 ${results.totalQuestions} 道题中答对了 ${results.correctAnswers} 道` :
+          `需要更多练习来提高成绩`;
+        safeSetTextContent(elements.scoreDescription, scoreDesc);
+        
+        // 如果成绩不错，显示彩带效果
+        if (results.accuracy >= 75 || results.score >= 10) {
+          setTimeout(createConfetti, 1000);
+        }
+      };
+
+      // 事件监听器
+      safeAddEventListener(elements.langSwitch, 'click', () => {
           currentLang = currentLang === 'zh' ? 'en' : 'zh';
           localStorage.setItem('language', currentLang);
           updateLanguage(currentLang);
         });
-      }
 
-      // Restart button handler
-      const restartBtn = document.getElementById('restartBtn');
-      if (restartBtn) {
-        restartBtn.addEventListener('click', () => {
+            safeAddEventListener(elements.restartBtn, 'click', () => {
+        // 清除游戏数据
+        localStorage.removeItem('score');
+        localStorage.removeItem('timeLeft');
+        localStorage.removeItem('totalQuestions');
+        localStorage.removeItem('correctAnswers');
           window.location.href = '/';
         });
-      }
+
+      safeAddEventListener(elements.shareBtn, 'click', () => {
+        const results = calculateResults();
+        shareResults(results);
+      });
+
+      // 初始化
+      updateLanguage(currentLang);
+      displayResults();
     </script>
   </body>
 </html>

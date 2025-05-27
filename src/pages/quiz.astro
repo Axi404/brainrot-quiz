@@ -1,5 +1,6 @@
 ---
-
+// 导入类型定义
+import '../types/quiz.ts';
 ---
 
 <html lang="zh-CN">
@@ -11,27 +12,87 @@
       href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
       rel="stylesheet"
     />
+    <style>
+      .quiz-option {
+        transition: all 0.2s ease;
+        cursor: pointer;
+      }
+      .quiz-option:active {
+        transform: scale(0.98);
+      }
+      .quiz-option-appear {
+        animation: optionAppear 0.4s ease-out forwards;
+      }
+      @keyframes optionAppear {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .pulse-animation {
+        animation: pulse 2s infinite;
+      }
+      @keyframes pulse {
+        0%, 100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+      }
+      .loading-spinner {
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid #3498db;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+    </style>
   </head>
   <body
     class="bg-gradient-to-br from-indigo-100 via-blue-100 to-purple-100 flex items-center justify-center min-h-screen"
   >
-    <!-- 遮罩层（美化版） -->
+    <!-- 加载屏幕 -->
+    <div
+      id="loading-screen"
+      class="fixed inset-0 bg-white flex items-center justify-center z-50"
+    >
+      <div class="text-center space-y-4">
+        <div class="loading-spinner mx-auto"></div>
+        <p id="loading-text" class="text-gray-600">正在加载资源...</p>
+        <div class="w-64 bg-gray-200 rounded-full h-2">
+          <div id="loading-progress" class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 开始遮罩层 -->
     <div
       id="start-overlay"
-      class="fixed inset-0 backdrop-blur-sm bg-white/80 flex items-center justify-center z-50 transition-opacity duration-300 opacity-100"
+      class="fixed inset-0 backdrop-blur-sm bg-white/90 flex items-center justify-center z-40 transition-all duration-500 opacity-0 pointer-events-none"
     >
       <div
-        class="bg-white p-8 rounded-2xl shadow-xl max-w-sm w-full text-center space-y-4"
+        class="bg-white p-8 rounded-2xl shadow-2xl max-w-sm w-full text-center space-y-6 transform scale-95"
       >
+        <div class="text-6xl mb-4">🎧</div>
         <h2 class="text-2xl font-bold text-gray-800" id="ready">
-          🎧 准备好了吗？
+          准备好了吗？
         </h2>
         <p class="text-sm text-gray-500" id="startDescription">
           点击按钮开始答题并播放音频
         </p>
         <button
           id="start-btn"
-          class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg font-medium"
+          class="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-8 py-3 rounded-lg font-medium transform transition-all hover:scale-105 shadow-lg"
         >
           开始答题
         </button>
@@ -40,156 +101,350 @@
 
     <!-- 主页面内容 -->
     <div
-      class="bg-white p-8 rounded-3xl shadow-xl w-full max-w-2xl text-center space-y-6"
+      class="bg-white/95 backdrop-blur-sm p-8 rounded-3xl shadow-2xl w-full max-w-4xl text-center space-y-6"
     >
-      <h2 class="text-2xl font-extrabold text-gray-800">
-        谁是 <span id="question-name" class="text-indigo-600">？</span>
+      <!-- 顶部状态栏 -->
+      <div class="flex justify-between items-center mb-6">
+        <div class="flex items-center space-x-2">
+          <span class="text-2xl">👤</span>
+          <span id="player-name" class="font-semibold text-gray-700">--</span>
+        </div>
+        <button
+          id="langSwitch"
+          class="text-sm text-gray-600 hover:text-gray-800 transition-colors duration-200 px-3 py-1 rounded bg-gray-100 hover:bg-gray-200"
+        >
+          English
+        </button>
+      </div>
+
+      <!-- 题目标题 -->
+      <div class="space-y-4">
+        <h2 class="text-3xl font-extrabold text-gray-800">
+          <span id="who-is-text">谁是</span> <span id="question-name" class="text-indigo-600 pulse-animation">？</span>
       </h2>
 
-      <audio id="question-audio" class="mx-auto" controls hidden></audio>
+        <!-- 音频控制 -->
+        <div class="flex justify-center items-center space-x-4">
+          <audio id="question-audio" preload="auto" class="hidden"></audio>
       <button
         id="replay-btn"
-        class="mt-2 mb-4 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
+          class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg flex items-center space-x-2 transition-all duration-200 shadow-md active:scale-95"
       >
-        🔁 重播音频
+            <span class="text-xl">🔁</span>
+            <span>重播音频</span>
       </button>
+          <div id="audio-indicator" class="hidden">
+            <div class="flex space-x-1">
+              <div class="w-1 h-4 bg-green-500 rounded animate-pulse"></div>
+              <div class="w-1 h-6 bg-green-500 rounded animate-pulse" style="animation-delay: 0.1s"></div>
+              <div class="w-1 h-4 bg-green-500 rounded animate-pulse" style="animation-delay: 0.2s"></div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-      <div id="options" class="grid grid-cols-2 gap-4"></div>
+      <!-- 选项网格 -->
+      <div id="options" class="grid grid-cols-2 gap-8 mt-8 max-w-2xl mx-auto"></div>
 
-      <div class="flex justify-between pt-4 text-gray-500">
-        <div>⏳ <span id="timer">60</span>s</div>
-        <div>✅ 得分：<span id="score">0</span></div>
+      <!-- 底部状态栏 -->
+      <div class="flex justify-between items-center pt-6 border-t border-gray-200">
+        <div class="flex items-center space-x-2">
+          <span class="text-2xl">⏳</span>
+          <span id="timer" class="text-xl font-bold text-red-500">60</span>
+          <span class="text-gray-500">s</span>
+        </div>
+        <div class="flex items-center space-x-2">
+          <span class="text-2xl">✅</span>
+          <span class="text-gray-600">得分：</span>
+          <span id="score" class="text-xl font-bold text-green-500">0</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 错误提示模态框 -->
+    <div
+      id="error-modal"
+      class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden"
+    >
+      <div class="bg-white p-6 rounded-2xl shadow-xl max-w-sm w-full mx-4">
+        <div class="text-center space-y-4">
+          <div class="text-5xl">⚠️</div>
+          <h3 class="text-lg font-bold text-gray-800">加载失败</h3>
+          <p id="error-message" class="text-gray-600">网络连接出现问题，请检查您的网络连接。</p>
+          <button
+            id="retry-btn"
+            class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg"
+          >
+            重试
+          </button>
+        </div>
       </div>
     </div>
 
     <script>
       import { translations } from "../i18n/translations";
       import type { Language } from "../i18n/translations";
+      import { GameManager } from "../utils/gameManager";
+      import {
+        getElementById,
+        getElement,
+        safeSetTextContent,
+        safeAddEventListener,
+        createImageElement,
+        toggleElement,
+        toggleClass
+      } from "../utils/domHelpers";
 
-      let currentLang: Language =
-        (localStorage.getItem("language") as Language) || "zh";
+      // 初始化变量
+      let currentLang: Language = (localStorage.getItem("language") as Language) || "zh";
+      const gameManager = new GameManager();
+      let currentAnswerIndex = -1;
 
-      const updateLanguage = (lang: Language) => {
-        const t = translations[lang];
-        const elements = {
-          title: document.title,
-          ready: document.getElementById("ready"),
-          startDescription: document.getElementById("startDescription"),
-          startAnswering: document.getElementById("start-btn"),
-          whoIs: document.getElementById("question-name"),
-          replayAudio: document.getElementById("replay-btn"),
-          score: document.getElementById("score"),
-        };
-
-        if (elements.ready) elements.ready.textContent = t.ready;
-        if (elements.startDescription)
-          elements.startDescription.textContent = t.startDescription;
-        if (elements.startAnswering)
-          elements.startAnswering.textContent = t.startAnswering;
-        if (elements.whoIs) elements.whoIs.textContent = t.whoIs;
-        if (elements.replayAudio)
-          elements.replayAudio.textContent = t.replayAudio;
+      // DOM 元素
+      const elements = {
+        loadingScreen: getElementById<HTMLDivElement>("loading-screen"),
+        loadingText: getElementById<HTMLParagraphElement>("loading-text"),
+        loadingProgress: getElementById<HTMLDivElement>("loading-progress"),
+        startOverlay: getElementById<HTMLDivElement>("start-overlay"),
+        startBtn: getElementById<HTMLButtonElement>("start-btn"),
+        playerName: getElementById<HTMLSpanElement>("player-name"),
+        langSwitch: getElementById<HTMLButtonElement>("langSwitch"),
+        whoIsText: getElementById<HTMLSpanElement>("who-is-text"),
+        questionName: getElementById<HTMLSpanElement>("question-name"),
+        questionAudio: getElementById<HTMLAudioElement>("question-audio"),
+        replayBtn: getElementById<HTMLButtonElement>("replay-btn"),
+        audioIndicator: getElementById<HTMLDivElement>("audio-indicator"),
+        optionsContainer: getElementById<HTMLDivElement>("options"),
+        timer: getElementById<HTMLSpanElement>("timer"),
+        score: getElementById<HTMLSpanElement>("score"),
+        errorModal: getElementById<HTMLDivElement>("error-modal"),
+        errorMessage: getElementById<HTMLParagraphElement>("error-message"),
+        retryBtn: getElementById<HTMLButtonElement>("retry-btn")
       };
 
-      updateLanguage(currentLang);
+      // 更新语言
+      const updateLanguage = (lang: Language): void => {
+        const t = translations[lang];
+        document.title = t.title;
+        
+        safeSetTextContent(elements.loadingText, t.loading);
+        safeSetTextContent(getElementById("ready"), t.ready);
+        safeSetTextContent(getElementById("startDescription"), t.startDescription);
+        safeSetTextContent(elements.startBtn, t.startAnswering);
+        safeSetTextContent(elements.whoIsText, t.whoIs);
+        safeSetTextContent(elements.replayBtn, `🔁 ${t.replayAudio.substring(2)}`);
+        safeSetTextContent(elements.langSwitch, lang === "zh" ? "English" : "中文");
+      };
 
-      const timerEl = document.getElementById("timer");
-      const scoreEl = document.getElementById("score");
-      const nameEl = document.getElementById("question-name");
-      const audioEl = document.getElementById("question-audio");
-      const optionsEl = document.getElementById("options");
-      const replayBtn = document.getElementById("replay-btn");
+      // 显示错误
+      const showError = (message: string): void => {
+        safeSetTextContent(elements.errorMessage, message);
+        toggleElement(elements.errorModal, true);
+      };
 
-      const overlay = document.getElementById("start-overlay");
-      const startBtn = document.getElementById("start-btn");
+      // 隐藏错误
+      const hideError = (): void => {
+        toggleElement(elements.errorModal, false);
+      };
 
-      let score = 0;
-      let timeLeft = parseInt(localStorage.getItem("duration") || "60");
-      localStorage.setItem("score", "0");
-
-      const res = await fetch("/question_bank.json");
-      const questionBank = await res.json();
-
-      function preloadAssets(bank) {
-        window._preloadedImages = [];
-        window._preloadedAudios = [];
-        for (const item of bank) {
-          const img = new Image();
-          img.src = item.image;
-          window._preloadedImages.push(img);
-
-          const audio = new Audio();
-          audio.src = item.audio;
-          window._preloadedAudios.push(audio);
+      // 更新进度条
+      const updateProgress = (progress: number): void => {
+        if (elements.loadingProgress) {
+          elements.loadingProgress.style.width = `${progress}%`;
         }
-      }
-      preloadAssets(questionBank);
-      // 工具函数：从数组中随机抽取 count 个不重复项
-      function getRandomSample(arr, count) {
-        const copy = [...arr];
-        const result = [];
-        while (result.length < count && copy.length) {
-          const i = Math.floor(Math.random() * copy.length);
-          result.push(copy.splice(i, 1)[0]);
-        }
-        return result;
-      }
+      };
 
-      function askNewQuestion(shouldPlay = false) {
-        const choices = getRandomSample(questionBank, 4);
-        const answerIndex = Math.floor(Math.random() * 4);
-        const answer = choices[answerIndex];
+             // 预加载资源
+       const preloadAssets = async (): Promise<void> => {
+         try {
+           updateProgress(10);
+           safeSetTextContent(elements.loadingText, "正在加载题库...");
+           
+           // 模拟进度更新
+           const progressInterval = setInterval(() => {
+             const currentWidth = parseInt(elements.loadingProgress?.style.width || "10");
+             if (currentWidth < 80) {
+               updateProgress(currentWidth + 5);
+             }
+           }, 100);
+           
+           await gameManager.preloadAssets();
+           
+           clearInterval(progressInterval);
+           updateProgress(100);
+           safeSetTextContent(elements.loadingText, "加载完成！");
+           
+           setTimeout(() => {
+             toggleElement(elements.loadingScreen, false);
+             if (elements.startOverlay) {
+               elements.startOverlay.classList.remove("opacity-0", "pointer-events-none");
+               elements.startOverlay.classList.add("opacity-100");
+             }
+           }, 300);
+         } catch (error) {
+           console.error("预加载失败:", error);
+           toggleElement(elements.loadingScreen, false);
+           showError("资源加载失败，请检查网络连接并重试。");
+         }
+       };
 
-        nameEl.textContent = answer.name;
-        audioEl.src = answer.audio;
-
-        if (shouldPlay) {
-          audioEl.play().catch(() => {});
-        }
-
-        optionsEl.innerHTML = "";
-        choices.forEach((opt, i) => {
-          const img = document.createElement("img");
-          img.src = opt.image;
-          img.alt = opt.name;
-          img.className =
-            "rounded-xl border-4 border-transparent hover:border-blue-500 cursor-pointer transition-all";
-          img.onclick = () => {
-            if (i === answerIndex) score++;
-            else score--;
-            scoreEl.textContent = score;
-            localStorage.setItem("score", score.toString());
-            askNewQuestion(true);
+      // 播放音频
+      const playAudio = async (audioSrc: string): Promise<void> => {
+        if (!elements.questionAudio) return;
+        
+        try {
+          elements.questionAudio.src = audioSrc;
+          toggleElement(elements.audioIndicator, true);
+          await elements.questionAudio.play();
+          
+          elements.questionAudio.onended = () => {
+            toggleElement(elements.audioIndicator, false);
           };
-          optionsEl.appendChild(img);
-        });
-      }
+        } catch (error) {
+          console.error("音频播放失败:", error);
+          toggleElement(elements.audioIndicator, false);
+        }
+      };
 
-      function startTimer() {
-        const interval = setInterval(() => {
-          timeLeft--;
-          timerEl.textContent = timeLeft;
-          if (timeLeft <= 0) {
-            clearInterval(interval);
+      // 生成新题目
+      const askNewQuestion = async (shouldPlay = false): Promise<void> => {
+        try {
+          const { choices, answerIndex, answer } = gameManager.generateQuestion();
+          currentAnswerIndex = answerIndex;
+
+          // 更新题目名称
+          safeSetTextContent(elements.questionName, answer.name);
+
+          // 播放音频
+          if (shouldPlay) {
+            await playAudio(answer.audio);
+          }
+
+                     // 清空并重新生成选项
+           if (elements.optionsContainer) {
+             elements.optionsContainer.innerHTML = "";
+             
+             choices.forEach((option, index) => {
+               const optionDiv = document.createElement("div");
+               optionDiv.className = "quiz-option quiz-option-appear relative";
+               optionDiv.style.animationDelay = `${index * 0.1}s`;
+               
+               const img = createImageElement(
+                 option.image,
+                 option.name,
+                 "w-full aspect-square object-cover rounded-xl border-4 border-transparent hover:border-blue-400 transition-all duration-200"
+               );
+               
+               // 不显示名称标签，避免泄露答案
+               optionDiv.appendChild(img);
+               
+               optionDiv.addEventListener("click", () => handleAnswer(index));
+               elements.optionsContainer!.appendChild(optionDiv);
+             });
+           }
+        } catch (error) {
+          console.error("生成题目失败:", error);
+          showError("生成题目时出现错误，请重试。");
+        }
+      };
+
+      // 处理答题
+      const handleAnswer = (selectedIndex: number): void => {
+        const isCorrect = selectedIndex === currentAnswerIndex;
+        gameManager.updateScore(isCorrect);
+        
+        // 更新分数显示
+        const gameState = gameManager.getGameState();
+        safeSetTextContent(elements.score, gameState.score.toString());
+        
+        // 视觉反馈
+        const options = elements.optionsContainer?.children;
+        if (options) {
+          Array.from(options).forEach((option, index) => {
+            const element = option as HTMLElement;
+            if (index === currentAnswerIndex) {
+              element.classList.add("ring-4", "ring-green-500");
+            } else if (index === selectedIndex && !isCorrect) {
+              element.classList.add("ring-4", "ring-red-500");
+            }
+          });
+        }
+        
+                 // 短暂延迟后继续下一题
+         setTimeout(() => {
+            askNewQuestion(true);
+         }, 10);
+      };
+
+             // 开始游戏
+       const startGame = (): void => {
+         try {
+           gameManager.loadGameState();
+           const gameState = gameManager.getGameState();
+           
+           // 更新UI
+           safeSetTextContent(elements.playerName, gameState.nickname);
+           safeSetTextContent(elements.score, gameState.score.toString());
+           safeSetTextContent(elements.timer, gameState.timeLeft.toString());
+           
+           // 隐藏开始遮罩
+           if (elements.startOverlay) {
+             elements.startOverlay.classList.add("opacity-0", "pointer-events-none");
+             // 确保遮罩完全移除
+             setTimeout(() => {
+               if (elements.startOverlay) {
+                 elements.startOverlay.style.display = "none";
+               }
+             }, 500);
+           }
+           
+           // 开始计时器
+           gameManager.startTimer(
+             (timeLeft) => {
+               safeSetTextContent(elements.timer, timeLeft.toString());
+               
+               // 时间不足警告
+               if (timeLeft <= 10) {
+                 elements.timer?.classList.add("text-red-600", "animate-pulse");
+               }
+             },
+             () => {
             window.location.href = "/result";
           }
-        }, 1000);
-      }
+           );
+           
+           // 立即开始第一题，不延迟
+           askNewQuestion(true);
+         } catch (error) {
+           console.error("启动游戏失败:", error);
+           showError("启动游戏时出现错误，请重试。");
+         }
+       };
 
-      startBtn.onclick = () => {
-        overlay.classList.add("opacity-0", "pointer-events-none");
-        setTimeout(() => overlay.remove(), 300);
+      // 事件监听器
+      safeAddEventListener(elements.startBtn, "click", startGame);
+      
+      safeAddEventListener(elements.replayBtn, "click", () => {
+        const gameState = gameManager.getGameState();
+        if (gameState.currentQuestion) {
+          playAudio(gameState.currentQuestion.audio);
+        }
+      });
+      
+      safeAddEventListener(elements.langSwitch, "click", () => {
+        currentLang = currentLang === "zh" ? "en" : "zh";
+        localStorage.setItem("language", currentLang);
+        updateLanguage(currentLang);
+      });
+      
+      safeAddEventListener(elements.retryBtn, "click", () => {
+        hideError();
+        preloadAssets();
+      });
 
-        score = 0;
-        scoreEl.textContent = score;
-        startTimer();
-        askNewQuestion(true); // 首题自动播放
-      };
-
-      replayBtn.onclick = () => {
-        audioEl.currentTime = 0;
-        audioEl.play();
-      };
+      // 初始化
+      updateLanguage(currentLang);
+      preloadAssets();
     </script>
   </body>
 </html>

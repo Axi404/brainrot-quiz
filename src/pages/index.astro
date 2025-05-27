@@ -1,5 +1,6 @@
 ---
-
+// 导入类型定义
+import '../types/quiz.ts';
 ---
 
 <html lang="zh-CN">
@@ -11,154 +12,334 @@
       href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
       rel="stylesheet"
     />
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-KNV6KMXTRC"
-    ></script><script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag() {
-        dataLayer.push(arguments);
+    <style>
+      .animated-bg {
+        background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+        background-size: 400% 400%;
+        animation: gradient 15s ease infinite;
       }
-      gtag("js", new Date());
-      gtag("config", "G-KNV6KMXTRC");
-    </script></head
-  >
+      @keyframes gradient {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+      }
+      .card-entrance {
+        animation: cardSlideIn 0.6s ease-out;
+      }
+      @keyframes cardSlideIn {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .input-focus {
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      }
+      .input-focus:focus {
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      }
+    </style>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-KNV6KMXTRC"></script>
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-KNV6KMXTRC');
+    </script>
+  </head>
 
-  <body
-    class="min-h-screen flex items-center justify-center bg-gradient-to-b from-sky-100 to-blue-200"
-  >
-    <div class="bg-white shadow-xl rounded-2xl p-8 w-full max-w-md space-y-6">
-      <div class="flex justify-end space-x-4">
+  <body class="min-h-screen animated-bg flex items-center justify-center p-4">
+    <div class="card-entrance bg-white/95 backdrop-blur-sm shadow-2xl rounded-3xl p-8 w-full max-w-md space-y-8">
+      <!-- 头部 -->
+      <div class="text-center space-y-4">
+        <div class="text-6xl mb-4">🎮</div>
+        <h1 id="title" class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          限时答题
+        </h1>
+        <p class="text-gray-600">测试你的知识，挑战你的极限！</p>
+      </div>
+
+      <!-- 语言和链接 -->
+      <div class="flex justify-between items-center">
         <a
           href="https://github.com/Axi404/brainrot-quiz"
           target="_blank"
           rel="noopener noreferrer"
-          class="text-sm text-gray-600 hover:text-gray-800 transition-colors"
+          class="text-sm text-gray-600 hover:text-blue-600 transition-colors flex items-center space-x-1"
         >
-          Github
+          <span>📚</span>
+          <span>Github</span>
         </a>
         <button
           id="langSwitch"
-          class="text-sm text-gray-600 hover:text-gray-800 transition-colors"
+          class="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg transition-colors"
         >
           English
         </button>
       </div>
 
-      <h1 id="title" class="text-3xl font-bold text-center">限时答题</h1>
-
-      <div class="space-y-4">
-        <label class="block">
-          <span id="nicknameLabel" class="text-gray-700">请输入昵称</span>
+      <!-- 表单 -->
+      <form id="quiz-form" class="space-y-6">
+        <!-- 昵称输入 -->
+        <div class="space-y-2">
+          <label for="nickname" class="block">
+            <span id="nicknameLabel" class="text-gray-700 font-medium flex items-center space-x-2">
+              <span>👤</span>
+              <span>请输入昵称</span>
+            </span>
+          </label>
           <input
             id="nickname"
             type="text"
-            class="mt-1 block w-full rounded border border-gray-300 p-2"
+            class="input-focus w-full p-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 outline-none"
             placeholder="你的昵称"
+            maxlength="20"
             required
           />
-        </label>
+          <div id="nickname-error" class="text-red-500 text-sm hidden">请输入有效的昵称</div>
+        </div>
 
-        <label class="block">
-          <span id="timeLabel" class="text-gray-700">选择答题时间</span>
+        <!-- 时间选择 -->
+        <div class="space-y-2">
+          <label for="duration" class="block">
+            <span id="timeLabel" class="text-gray-700 font-medium flex items-center space-x-2">
+              <span>⏰</span>
+              <span>选择答题时间</span>
+            </span>
+          </label>
           <select
             id="duration"
-            class="mt-1 block w-full rounded border border-gray-300 p-2"
+            class="input-focus w-full p-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 outline-none bg-white"
           >
-            <option value="10">10 秒</option>
-            <option value="60">1 分钟</option>
-            <option value="180">3 分钟</option>
-            <option value="300">5 分钟</option>
+            <option value="10">⚡ 10 秒 (闪电模式)</option>
+            <option value="60" selected>🔥 1 分钟 (标准模式)</option>
+            <option value="180">💪 3 分钟 (挑战模式)</option>
+            <option value="300">🏆 5 分钟 (专家模式)</option>
           </select>
-        </label>
+        </div>
 
+        <!-- 开始按钮 -->
         <button
+          type="submit"
           id="start-btn"
-          class="w-full bg-blue-600 hover:bg-blue-700 text-white p-3 rounded font-semibold"
+          class="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white p-4 rounded-xl font-semibold text-lg transition-all duration-200 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
         >
-          开始答题
+          <span id="start-btn-text">🚀 开始答题</span>
+          <div id="start-btn-loading" class="hidden flex items-center justify-center">
+            <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+            <span>准备中...</span>
+          </div>
         </button>
+      </form>
+
+      <!-- 游戏说明 -->
+      <div class="bg-blue-50 p-4 rounded-xl">
+        <h3 class="font-semibold text-blue-800 mb-2">📖 游戏说明</h3>
+        <ul class="text-sm text-blue-700 space-y-1">
+          <li>• 根据音频选择正确的角色图片</li>
+          <li>• 答对得1分，答错扣1分</li>
+          <li>• 时间结束后自动跳转到结果页</li>
+          <li>• 支持重播音频帮助判断</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 错误提示模态框 -->
+    <div
+      id="error-modal"
+      class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden"
+    >
+      <div class="bg-white p-6 rounded-2xl shadow-xl max-w-sm w-full mx-4">
+        <div class="text-center space-y-4">
+          <div class="text-5xl">⚠️</div>
+          <h3 class="text-lg font-bold text-gray-800">提示</h3>
+          <p id="error-message" class="text-gray-600"></p>
+          <button
+            id="error-close"
+            class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg"
+          >
+            确定
+          </button>
+        </div>
       </div>
     </div>
 
     <script>
       import { translations } from "../i18n/translations";
       import type { Language } from "../i18n/translations";
+      import { 
+        getElementById,
+        getElement,
+        safeSetTextContent,
+        safeAddEventListener,
+        toggleElement 
+      } from "../utils/domHelpers";
 
-      let currentLang: Language =
-        (localStorage.getItem("language") as Language) || "zh";
-
-      const updateLanguage = (lang: Language) => {
-        const t = translations[lang];
-        const elements = {
-          title: document.getElementById("title"),
-          nicknameLabel: document.getElementById("nicknameLabel"),
-          nickname: document.getElementById("nickname") as HTMLInputElement,
-          timeLabel: document.getElementById("timeLabel"),
-          duration: document.getElementById("duration") as HTMLSelectElement,
-          startBtn: document.getElementById("start-btn"),
-          langSwitch: document.getElementById("langSwitch"),
-        };
-
-        document.title = t.title;
-        if (elements.title) elements.title.textContent = t.title;
-        if (elements.nicknameLabel)
-          elements.nicknameLabel.textContent = t.enterNickname;
-        if (elements.nickname)
-          elements.nickname.placeholder = t.nicknamePlaceholder;
-        if (elements.timeLabel) elements.timeLabel.textContent = t.selectTime;
-        if (elements.duration) {
-          elements.duration.options[0].text = `10 ${t.seconds}`;
-          elements.duration.options[1].text = `1 ${t.minutes}`;
-          elements.duration.options[2].text = `3 ${t.minutes}`;
-          elements.duration.options[3].text = `5 ${t.minutes}`;
-        }
-        if (elements.startBtn) elements.startBtn.textContent = t.startQuiz;
-        if (elements.langSwitch)
-          elements.langSwitch.textContent = lang === "zh" ? "English" : "中文";
+      // 类型安全的元素获取
+      const elements = {
+        form: getElement<HTMLFormElement>("quiz-form"),
+        nickname: getElement<HTMLInputElement>("nickname"),
+        duration: getElement<HTMLSelectElement>("duration"),
+        startBtn: getElement<HTMLButtonElement>("start-btn"),
+        startBtnText: getElementById<HTMLSpanElement>("start-btn-text"),
+        startBtnLoading: getElementById<HTMLDivElement>("start-btn-loading"),
+        langSwitch: getElement<HTMLButtonElement>("langSwitch"),
+        nicknameError: getElementById<HTMLDivElement>("nickname-error"),
+        errorModal: getElementById<HTMLDivElement>("error-modal"),
+        errorMessage: getElementById<HTMLParagraphElement>("error-message"),
+        errorClose: getElementById<HTMLButtonElement>("error-close")
       };
 
-      // Initialize language
-      updateLanguage(currentLang);
+      // 当前语言
+      let currentLang: Language = (localStorage.getItem("language") as Language) || "zh";
 
-      // Language switch handler
-      const langSwitch = document.getElementById("langSwitch");
-      if (langSwitch) {
-        langSwitch.addEventListener("click", () => {
-          currentLang = currentLang === "zh" ? "en" : "zh";
-          localStorage.setItem("language", currentLang);
-          updateLanguage(currentLang);
-        });
-      }
+      // 更新语言
+      const updateLanguage = (lang: Language): void => {
+        const t = translations[lang];
+        const titleEl = getElementById("title");
+        const nicknameLabel = getElementById("nicknameLabel");
+        const timeLabel = getElementById("timeLabel");
 
-      // Start button handler
-      const startBtn = document.getElementById("start-btn");
-      if (startBtn) {
-        startBtn.addEventListener("click", () => {
-          const nicknameInput = document.getElementById(
-            "nickname",
-          ) as HTMLInputElement;
-          const durationSelect = document.getElementById(
-            "duration",
-          ) as HTMLSelectElement;
+        document.title = t.title;
+        safeSetTextContent(titleEl, t.title);
+        safeSetTextContent(nicknameLabel, t.enterNickname);
+        safeSetTextContent(timeLabel, t.selectTime);
+        
+        if (elements.nickname) {
+          elements.nickname.placeholder = t.nicknamePlaceholder;
+        }
+        
+        // 更新选项文本
+        if (elements.duration) {
+          const options = elements.duration.options;
+          options[0].text = `⚡ 10 ${t.seconds} (闪电模式)`;
+          options[1].text = `🔥 1 ${t.minutes} (标准模式)`;
+          options[2].text = `💪 3 ${t.minutes} (挑战模式)`;
+          options[3].text = `🏆 5 ${t.minutes} (专家模式)`;
+        }
+        
+        safeSetTextContent(elements.startBtnText, `🚀 ${t.startQuiz}`);
+        safeSetTextContent(elements.langSwitch, lang === "zh" ? "English" : "中文");
+      };
 
-          const nickname = nicknameInput.value.trim();
-          const duration = parseInt(durationSelect.value);
-          const timeTrack =
-            durationSelect.options[durationSelect.selectedIndex].text;
+      // 显示错误
+      const showError = (message: string): void => {
+        safeSetTextContent(elements.errorMessage, message);
+        toggleElement(elements.errorModal, true);
+      };
 
-          if (!nickname) {
-            alert(translations[currentLang].pleaseEnterNickname);
-            return;
-          }
+      // 隐藏错误
+      const hideError = (): void => {
+        toggleElement(elements.errorModal, false);
+      };
 
+      // 验证昵称
+      const validateNickname = (nickname: string): boolean => {
+        const trimmed = nickname.trim();
+        if (trimmed.length === 0) {
+          return false;
+        }
+        if (trimmed.length > 20) {
+          return false;
+        }
+        // 检查是否包含特殊字符
+        const validPattern = /^[a-zA-Z0-9\u4e00-\u9fa5_-]+$/;
+        return validPattern.test(trimmed);
+      };
+
+      // 设置加载状态
+      const setLoading = (loading: boolean): void => {
+        if (elements.startBtn) {
+          elements.startBtn.disabled = loading;
+        }
+        toggleElement(elements.startBtnText, !loading);
+        toggleElement(elements.startBtnLoading, loading);
+      };
+
+      // 处理表单提交
+      const handleSubmit = async (event: Event): Promise<void> => {
+        event.preventDefault();
+        
+        const nickname = elements.nickname.value.trim();
+        const duration = parseInt(elements.duration.value);
+        const timeTrack = elements.duration.options[elements.duration.selectedIndex].text;
+
+        // 验证昵称
+        if (!validateNickname(nickname)) {
+          const t = translations[currentLang];
+          showError(t.pleaseEnterNickname);
+          elements.nickname.focus();
+          return;
+        }
+
+        // 设置加载状态
+        setLoading(true);
+
+        try {
+          // 清除旧游戏数据并保存新数据
           localStorage.setItem("nickname", nickname);
           localStorage.setItem("duration", duration.toString());
           localStorage.setItem("timeTrack", timeTrack);
           localStorage.setItem("score", "0");
-          localStorage.setItem("shouldAutoPlayAudio", "true");
+          localStorage.setItem("language", currentLang);
+          localStorage.setItem("totalQuestions", "0");
+          localStorage.setItem("correctAnswers", "0");
+          localStorage.removeItem("timeLeft"); // 清除旧的时间记录
 
+          // 短暂延迟模拟加载
+          await new Promise(resolve => setTimeout(resolve, 500));
+
+          // 跳转到答题页
           window.location.href = "/quiz";
-        });
-      }
+        } catch (error) {
+          console.error("启动游戏失败:", error);
+          showError("启动游戏时出现错误，请重试。");
+          setLoading(false);
+        }
+      };
+
+      // 处理语言切换
+      const handleLanguageSwitch = (): void => {
+        currentLang = currentLang === "zh" ? "en" : "zh";
+        localStorage.setItem("language", currentLang);
+        updateLanguage(currentLang);
+      };
+
+      // 处理昵称输入
+      const handleNicknameInput = (): void => {
+        const nickname = elements.nickname.value.trim();
+        const isValid = validateNickname(nickname);
+        
+        toggleElement(elements.nicknameError, !isValid && nickname.length > 0);
+        
+        if (elements.nickname) {
+          elements.nickname.classList.toggle("border-red-500", !isValid && nickname.length > 0);
+          elements.nickname.classList.toggle("border-gray-200", isValid || nickname.length === 0);
+        }
+      };
+
+      // 事件监听器
+      safeAddEventListener(elements.form, "submit", handleSubmit);
+      safeAddEventListener(elements.langSwitch, "click", handleLanguageSwitch);
+      safeAddEventListener(elements.nickname, "input", handleNicknameInput);
+      safeAddEventListener(elements.errorClose, "click", hideError);
+
+      // 键盘快捷键
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" && !elements.startBtn?.disabled) {
+          elements.form.dispatchEvent(new Event("submit"));
+        }
+      });
+
+      // 自动聚焦昵称输入框
+      elements.nickname.focus();
+
+      // 初始化语言
+      updateLanguage(currentLang);
     </script>
   </body>
 </html>
